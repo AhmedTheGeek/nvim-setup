@@ -6,7 +6,7 @@ return  { {"williamboman/mason.nvim",
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
-          ensure_installed = { "lua_ls", "intelephense", "ts_ls", "cssls", "ts_ls", "vuels", "html", "yamlls", "dockerls", "cmake", "terraformls"}
+          ensure_installed = { "lua_ls", "intelephense", "ts_ls", "cssls", "ts_ls", "vuels", "html", "yamlls", "dockerls", "cmake", "terraformls", "jsonls"}
       })
     end
   },
@@ -25,6 +25,7 @@ return  { {"williamboman/mason.nvim",
       lspconfig.dockerls.setup({capabilities = capabilities})
       lspconfig.cmake.setup({capabilities = capabilities})
       lspconfig.terraformls.setup({capabilities = capabilities})
+      lspconfig.jsonls.setup({capabilities = capabilities})
       vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, {})
       vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {})
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
