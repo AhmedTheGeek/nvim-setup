@@ -39,6 +39,9 @@ vim.keymap.set("n", "<A-s-c>", "<Cmd>BufferRestore<CR>", { silent = true })
 -- toggle floaterm
 vim.keymap.set("n", "A-h", "<cmd>FloatermToggle<cr>")
 
+-- exit terminal mode
+vim.api.nvim_set_keymap('t', '<C-q>', '<C-\\><C-n>', { noremap = true, silent = true })
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
