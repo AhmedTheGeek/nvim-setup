@@ -6,7 +6,7 @@ vim.cmd("set clipboard=unnamedplus")
 vim.cmd("set number")
 vim.cmd("set relativenumber")
 vim.g.mapleader = " "
-
+vim.opt.autoread= true
 -- Move to previous/next buffer
 vim.keymap.set("n", "<A-,>", "<Cmd>BufferPrevious<CR>", { silent = true })
 vim.keymap.set("n", "<A-.>", "<Cmd>BufferNext<CR>", { silent = true })
