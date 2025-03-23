@@ -5,6 +5,7 @@ vim.cmd("set shiftwidth=2")
 vim.cmd("set clipboard=unnamedplus")
 vim.cmd("set number")
 vim.cmd("set relativenumber")
+-- vim.cmd([[colorscheme tokyonight]])
 vim.g.mapleader = " "
 vim.opt.autoread= true
 -- Move to previous/next buffer
