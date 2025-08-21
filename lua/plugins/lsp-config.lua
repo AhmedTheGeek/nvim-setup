@@ -32,7 +32,7 @@ return {
       local lspconfig = require("lspconfig")
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
       lspconfig.lua_ls.setup({ capabilities = capabilities })
-      -- Intelephense is now configured in php-compatibility.lua with PHP version detection
+      lspconfig.intelephense.setup({ capabilities = capabilities })
       lspconfig.ts_ls.setup({ capabilities = capabilities })
       lspconfig.cssls.setup({ capabilities = capabilities })
       lspconfig.vuels.setup({ capabilities = capabilities })
@@ -57,8 +57,8 @@ return {
       local wp = require("wordpress")
       local lspconfig = require("lspconfig")
 
-      -- Intelephense is now configured in php-compatibility.lua with PHP version detection
-      -- WordPress config is merged there as well
+      -- setup intelephense for PHP, WordPress and WooCommerce development
+      lspconfig.intelephense.setup(wp.intelephense)
     end,
   },
 }
