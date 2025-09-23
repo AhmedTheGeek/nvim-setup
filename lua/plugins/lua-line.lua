@@ -2,38 +2,62 @@ return {
 	"nvim-lualine/lualine.nvim",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 	config = function()
-		local colors = {
-			bg = "#1e1e2e",
-			fg = "#cdd6f4",
-			yellow = "#f9e2af",
-			cyan = "#89dceb",
-			darkblue = "#45475a",
-			green = "#a6e3a1",
-			orange = "#fab387",
-			violet = "#cba6f7",
-			magenta = "#f5c2e7",
-			blue = "#89b4fa",
-			red = "#f38ba8",
-			grey = "#6c7086",
-			black = "#11111b",
-			white = "#ffffff",
-		}
+		-- Function to get colors from current theme
+		local function get_theme_colors()
+			local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
+			local keyword_hl = vim.api.nvim_get_hl(0, { name = "Keyword" })
+			local function_hl = vim.api.nvim_get_hl(0, { name = "Function" })
+			local string_hl = vim.api.nvim_get_hl(0, { name = "String" })
+			local comment_hl = vim.api.nvim_get_hl(0, { name = "Comment" })
+			local constant_hl = vim.api.nvim_get_hl(0, { name = "Constant" })
+			local identifier_hl = vim.api.nvim_get_hl(0, { name = "Identifier" })
+			local type_hl = vim.api.nvim_get_hl(0, { name = "Type" })
+			local special_hl = vim.api.nvim_get_hl(0, { name = "Special" })
+			local error_hl = vim.api.nvim_get_hl(0, { name = "DiagnosticError" })
+			local warn_hl = vim.api.nvim_get_hl(0, { name = "DiagnosticWarn" })
+			local info_hl = vim.api.nvim_get_hl(0, { name = "DiagnosticInfo" })
+			local hint_hl = vim.api.nvim_get_hl(0, { name = "DiagnosticHint" })
 
-		local bubbles_theme = {
-			normal = {
-				a = { fg = colors.black, bg = colors.violet },
-				b = { fg = colors.white, bg = colors.grey },
-				c = { fg = colors.white, bg = colors.black },
-			},
-			insert = { a = { fg = colors.black, bg = colors.blue } },
-			visual = { a = { fg = colors.black, bg = colors.cyan } },
-			replace = { a = { fg = colors.black, bg = colors.red } },
-			inactive = {
-				a = { fg = colors.white, bg = colors.black },
-				b = { fg = colors.white, bg = colors.black },
-				c = { fg = colors.white, bg = colors.black },
-			},
-		}
+			return {
+				bg = normal_hl.bg and string.format("#%06x", normal_hl.bg) or "#1e1e2e",
+				fg = normal_hl.fg and string.format("#%06x", normal_hl.fg) or "#cdd6f4",
+				yellow = warn_hl.fg and string.format("#%06x", warn_hl.fg) or "#f9e2af",
+				cyan = info_hl.fg and string.format("#%06x", info_hl.fg) or "#89dceb",
+				darkblue = comment_hl.fg and string.format("#%06x", comment_hl.fg) or "#45475a",
+				green = string_hl.fg and string.format("#%06x", string_hl.fg) or "#a6e3a1",
+				orange = constant_hl.fg and string.format("#%06x", constant_hl.fg) or "#fab387",
+				violet = keyword_hl.fg and string.format("#%06x", keyword_hl.fg) or "#cba6f7",
+				magenta = special_hl.fg and string.format("#%06x", special_hl.fg) or "#f5c2e7",
+				blue = function_hl.fg and string.format("#%06x", function_hl.fg) or "#89b4fa",
+				red = error_hl.fg and string.format("#%06x", error_hl.fg) or "#f38ba8",
+				grey = comment_hl.fg and string.format("#%06x", comment_hl.fg) or "#6c7086",
+				black = normal_hl.bg and string.format("#%06x", normal_hl.bg) or "#11111b",
+				white = normal_hl.fg and string.format("#%06x", normal_hl.fg) or "#ffffff",
+			}
+		end
+
+		local colors = get_theme_colors()
+
+		local function create_theme()
+			local c = get_theme_colors()
+			return {
+				normal = {
+					a = { fg = c.black, bg = c.violet },
+					b = { fg = c.white, bg = c.grey },
+					c = { fg = c.white, bg = c.black },
+				},
+				insert = { a = { fg = c.black, bg = c.blue } },
+				visual = { a = { fg = c.black, bg = c.cyan } },
+				replace = { a = { fg = c.black, bg = c.red } },
+				inactive = {
+					a = { fg = c.white, bg = c.black },
+					b = { fg = c.white, bg = c.black },
+					c = { fg = c.white, bg = c.black },
+				},
+			}
+		end
+
+		local bubbles_theme = create_theme()
 
 		local function get_venv()
 			local venv = vim.env.VIRTUAL_ENV
@@ -108,19 +132,22 @@ return {
 		local function get_lsp_clients()
 			local buf_ft = vim.api.nvim_get_option_value("filetype", { buf = 0 })
 			local clients = vim.lsp.get_clients()
-			local client_names = {}
+			local active_count = 0
 
 			for _, client in ipairs(clients) do
 				local filetypes = client.config.filetypes
 				if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
-					table.insert(client_names, client.name)
+					active_count = active_count + 1
 				end
 			end
 
-			if #client_names == 0 then
+			if active_count == 0 then
 				return " No LSP"
+			elseif active_count == 1 then
+				return "  LSP"
+			else
+				return "  " .. active_count .. " LSP"
 			end
-			return "  " .. table.concat(client_names, ", ")
 		end
 
 		local function get_word_count()
@@ -131,9 +158,11 @@ return {
 			return ""
 		end
 
-		require("lualine").setup({
+		local lualine = require("lualine")
+
+		lualine.setup({
 			options = {
-				theme = bubbles_theme,
+				theme = "auto",
 				component_separators = { left = "", right = "" },
 				section_separators = { left = "", right = "" },
 				globalstatus = true,
@@ -341,6 +370,18 @@ return {
 				},
 			},
 			extensions = { "fugitive", "nvim-tree", "quickfix", "trouble", "lazy" },
+		})
+
+		-- Refresh lualine when colorscheme changes
+		vim.api.nvim_create_autocmd("ColorScheme", {
+			callback = function()
+				vim.schedule(function()
+					-- Update colors variable for components
+					colors = get_theme_colors()
+					-- Just refresh with auto theme
+					require("lualine").refresh()
+				end)
+			end
 		})
 	end,
 }

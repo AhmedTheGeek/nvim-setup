@@ -4,8 +4,30 @@ return {
 	config = function()
 		local notify = require("notify")
 
+		-- Function to get theme-appropriate colors
+		local function get_theme_colors()
+			local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
+			local error_hl = vim.api.nvim_get_hl(0, { name = "DiagnosticError" })
+			local warn_hl = vim.api.nvim_get_hl(0, { name = "DiagnosticWarn" })
+			local info_hl = vim.api.nvim_get_hl(0, { name = "DiagnosticInfo" })
+			local hint_hl = vim.api.nvim_get_hl(0, { name = "DiagnosticHint" })
+
+			-- Get background color from Normal highlight or fallback
+			local bg_color = normal_hl.bg and string.format("#%06x", normal_hl.bg) or "#000000"
+
+			return {
+				background = bg_color,
+				error = error_hl.fg and string.format("#%06x", error_hl.fg) or "#E06C75",
+				warn = warn_hl.fg and string.format("#%06x", warn_hl.fg) or "#E5C07B",
+				info = info_hl.fg and string.format("#%06x", info_hl.fg) or "#61AFEF",
+				hint = hint_hl.fg and string.format("#%06x", hint_hl.fg) or "#98C379",
+			}
+		end
+
+		local colors = get_theme_colors()
+
 		notify.setup({
-			background_colour = "#000000",
+			background_colour = colors.background,
 			fps = 60,
 			icons = {
 				DEBUG = "",
@@ -36,6 +58,44 @@ return {
 		})
 
 		vim.notify = notify
+
+		-- Set up theme-based highlight groups
+		local function setup_notify_highlights()
+			local colors = get_theme_colors()
+
+			-- Define notify highlight groups based on theme
+			vim.api.nvim_set_hl(0, "NotifyERRORBorder", { fg = colors.error })
+			vim.api.nvim_set_hl(0, "NotifyERRORIcon", { fg = colors.error })
+			vim.api.nvim_set_hl(0, "NotifyERRORTitle", { fg = colors.error })
+
+			vim.api.nvim_set_hl(0, "NotifyWARNBorder", { fg = colors.warn })
+			vim.api.nvim_set_hl(0, "NotifyWARNIcon", { fg = colors.warn })
+			vim.api.nvim_set_hl(0, "NotifyWARNTitle", { fg = colors.warn })
+
+			vim.api.nvim_set_hl(0, "NotifyINFOBorder", { fg = colors.info })
+			vim.api.nvim_set_hl(0, "NotifyINFOIcon", { fg = colors.info })
+			vim.api.nvim_set_hl(0, "NotifyINFOTitle", { fg = colors.info })
+
+			vim.api.nvim_set_hl(0, "NotifyDEBUGBorder", { fg = colors.hint })
+			vim.api.nvim_set_hl(0, "NotifyDEBUGIcon", { fg = colors.hint })
+			vim.api.nvim_set_hl(0, "NotifyDEBUGTitle", { fg = colors.hint })
+
+			vim.api.nvim_set_hl(0, "NotifyTRACEBorder", { fg = colors.hint })
+			vim.api.nvim_set_hl(0, "NotifyTRACEIcon", { fg = colors.hint })
+			vim.api.nvim_set_hl(0, "NotifyTRACETitle", { fg = colors.hint })
+
+			-- Update background color
+			notify.setup({ background_colour = colors.background })
+		end
+
+		setup_notify_highlights()
+
+		-- Refresh notify colors when colorscheme changes
+		vim.api.nvim_create_autocmd("ColorScheme", {
+			callback = function()
+				setup_notify_highlights()
+			end
+		})
 
 		local banned_messages = {
 			"No information available",
