@@ -1,5 +1,12 @@
--- Silence lspconfig deprecation warning until v3.0.0 is released (must be set early)
-vim.g.lspconfig_suppress_deprecation_warning = true
+-- Suppress nvim-lspconfig deprecation warning in Neovim 0.11+
+-- Override vim.deprecate to filter out lspconfig warnings
+local orig_deprecate = vim.deprecate
+vim.deprecate = function(what, ...)
+  if what and what:match("lspconfig") then
+    return
+  end
+  return orig_deprecate(what, ...)
+end
 
 vim.cmd("set expandtab")
 vim.cmd("set tabstop=2")
