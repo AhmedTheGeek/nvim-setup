@@ -1,3 +1,6 @@
+-- Silence lspconfig deprecation warning until v3.0.0 is released (must be set early)
+vim.g.lspconfig_suppress_deprecation_warning = true
+
 vim.cmd("set expandtab")
 vim.cmd("set tabstop=2")
 vim.cmd("set softtabstop=2")
